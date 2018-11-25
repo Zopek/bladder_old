@@ -1,3 +1,4 @@
+'''
 import csv
 import json
 import os
@@ -9,6 +10,8 @@ for file in os.listdir(file_path):
 	csv_file1 = csv.reader(open(csv_path, 'r'))
 	for i in csv_file1:
 		print i
+'''
+
 
 '''
 filepath = '/DATA3_DB7/data/public/renji_data/labels/label_data.json'
@@ -17,3 +20,9 @@ with open(filepath, 'r') as json_file1:
 	for i in file:
 		print i
 '''
+import numpy as np 
+
+a = [1, 2, 3]
+b = np.array(a)
+
+print b
