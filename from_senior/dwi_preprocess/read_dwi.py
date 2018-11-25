@@ -1,8 +1,7 @@
-import dicom
+import pydicom as dicom
 import os
 import re
 import numpy as np
-import dicom_numpy
 import collections
 
 
@@ -33,7 +32,12 @@ def read_stack(stack_path):
             ds_list.append(ds)
     assert len(ds_list) > 1
     voxel_array = _merge_slice_pixel_arrays(ds_list)
-    spacing = np.array(ds_list[0].PixelSpacing + [ds_list[0].SpacingBetweenSlices])
+    # add by me
+    space = []
+    space.append(ds_list[0].PixelSpacing[0])
+    space.append(ds_list[0].PixelSpacing[1])
+    # modified
+    spacing = np.array(space + [ds_list[0].SpacingBetweenSlices])
     return voxel_array, spacing
 
 

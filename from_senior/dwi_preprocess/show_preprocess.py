@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     for series_dir in series_dir_list:
         whole_adc, whole_b0, whole_b1000, mask, dilated_mask \
-            = full_preprocess.full_preprocess(root_dir + series_dir, True)
+            = full_preprocess.full_preprocess(root_dir + series_dir, False)
         masked_adc = whole_adc * mask
         masked_b0 = whole_b0 * mask
         dilated_masked_adc = whole_adc * dilated_mask

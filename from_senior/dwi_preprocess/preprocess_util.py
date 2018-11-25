@@ -40,7 +40,7 @@ def denoise(image):
     image = image
     # image = scipy.ndimage.median_filter(image, 2)
     selem = morphology.ball(1)
-    image = morphology.closing(image, selem)
+    image = morphology.closing(image, morphology.ball(1))
     image = morphology.opening(image, selem)
     image = filters.gaussian(image, sigma=0.4, multichannel=False)
     return image
