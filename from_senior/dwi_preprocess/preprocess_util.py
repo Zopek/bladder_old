@@ -22,17 +22,21 @@ def crop(image, shape):
 
 
 def resize(image, new_shape):
+    print 'start ', image.shape
     resize_factor = (np.round(new_shape).astype(np.float) + 1e-3) / image.shape  # +1e-3 to suppress warning of scipy.ndimage.zoom
     new_image = ndimage.interpolation.zoom(image, resize_factor, order=2)
+    print 'end ', new_image.shape
     return new_image
 
 
 def resample(image, spacing, new_spacing):
+    print 'start ', image.shape
     resize_factor = spacing / new_spacing
     new_shape = np.round(image.shape * resize_factor) + 1e-3
     real_resize_factor = new_shape / image.shape
     real_new_spacing = spacing / real_resize_factor
     new_image = ndimage.interpolation.zoom(image, real_resize_factor, order=2)
+    print 'end ', new_image.shape
     return new_image, real_new_spacing
 
 

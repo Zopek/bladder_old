@@ -70,6 +70,7 @@ def read_dwi(dwi_series_path):
 if __name__ == '__main__':
     import plot_3D_image, matplotlib.pyplot as plt
     dwi_ordered_dict, dwi_spacing, b_is_guessed = read_dwi('/DATA3_DB7/data/public/renji_data/bladder_cleaned_distinct_series/W0186949/dwi_ax_0')
+    print dwi_ordered_dict
     fig = plt.figure()
     plane = plot_3D_image.Multi3DArrayPlane(fig, 1, 1)
     plane.add(dwi_ordered_dict[1000].transpose(2,0,1), cmap='gray', fixed_window=False)

@@ -8,7 +8,6 @@ import scipy.ndimage
 import pickle
 from augmentation_utils import random_transform
 
-
 def read_csv(csv_file):
     with open(csv_file, 'rb') as fd:
         reader = csv.reader(fd)
@@ -155,6 +154,11 @@ class MyPreprocessor(object):
             cancer_bboxes_image = cancer_bboxes_image[bladder_bbox]
             cancer_bboxes_image = resize(cancer_bboxes_image, (self.new_height, self.new_width))
             sample['cancer_bboxes_image'] = np.expand_dims(cancer_bboxes_image, 0)
+
+        print sample['image'].shape
+        print sample['cancer_bboxes_image'].shape
+        print 'show sample: ', sample
+
         return sample
 
 

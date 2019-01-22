@@ -103,7 +103,7 @@ def main():
 
     # output dirs
     model_weights_dir = cfg['model_weights_dir']
-    log_dir = cfg['log_dir']
+    log_dir = '/DB/rhome/qyzheng/Desktop/qyzheng/PROGRAM/bladder/from_senior/bladder_dwi_2d_model/log'
 
     # dataset settings
     num_dataloader_workers = cfg['num_dataloader_workers']
