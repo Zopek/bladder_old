@@ -117,6 +117,7 @@ def main():
     print_freq_step = 100
     height = 160
     width = 160
+
     ###======================== LOAD DATA ===================================###
     ## by importing this, you can load a training set and a validation set.
     train_path = '/DB/rhome/qyzheng/Desktop/qyzheng/source/renji_data/from_senior/0_cv_train.csv'
@@ -125,6 +126,7 @@ def main():
     val = []
     train_size = 0
     val_size = 0
+    
     with open(train_path, 'r') as f:
     	reader = csv.reader(f)
     	for i in reader:
@@ -141,47 +143,46 @@ def main():
 
     train_epoch = train_size / batch_size
     val_epoch = val_size / batch_size
+
     ###======================== SHOW DATA ===================================###
-    with tf.device('/cpu:0'):
-        sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
-        with tf.device('/gpu:0'): #<- remove it if you train on CPU or other GPU
-            ###======================== DEFIINE MODEL =======================###
-            ## nz is 3 as we input ADC, b0, b1000
-            t_image = tf.placeholder('float32', [batch_size, height, width, 3], name='input_image')
-            ## labels are either 0 or 1
-            t_seg = tf.placeholder('float32', [batch_size, height, width, 1], name='target_segment')
-            ## train inference
-            net = model.u_net(t_image, is_train=True, reuse=False, n_out=1)
-            ## test inference
-            net_test = model.u_net(t_image, is_train=False, reuse=True, n_out=1)
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
 
-            ###======================== DEFINE LOSS =========================###
-            ## train losses
-            out_seg = net.outputs
-            dice_loss = 1 - tl.cost.dice_coe(out_seg, t_seg, axis=[0,1,2,3])#, 'jaccard', epsilon=1e-5)
-            iou_loss = tl.cost.iou_coe(out_seg, t_seg, axis=[0,1,2,3])
-            dice_hard = tl.cost.dice_hard_coe(out_seg, t_seg, axis=[0,1,2,3])
-            loss = dice_loss
+    ###======================== DEFIINE MODEL =======================###
+    ## nz is 3 as we input ADC, b0, b1000
+    t_image = tf.placeholder('float32', [batch_size, height, width, 3], name='input_image')
+    ## labels are either 0 or 1
+    t_seg = tf.placeholder('float32', [batch_size, height, width, 1], name='target_segment')
+    ## train inference
+    net = model.u_net(t_image, is_train=True, reuse=False, n_out=1)
+    ## test inference
+    net_test = model.u_net(t_image, is_train=False, reuse=True, n_out=1)
 
-            ## test losses
-            test_out_seg = net_test.outputs
-            test_dice_loss = 1 - tl.cost.dice_coe(test_out_seg, t_seg, axis=[0,1,2,3])#, 'jaccard', epsilon=1e-5)
-            test_iou_loss = tl.cost.iou_coe(test_out_seg, t_seg, axis=[0,1,2,3])
-            test_dice_hard = tl.cost.dice_hard_coe(test_out_seg, t_seg, axis=[0,1,2,3])
+    ###======================== DEFINE LOSS =========================###
+    ## train losses
+    out_seg = net.outputs
+    dice_loss = 1 - tl.cost.dice_coe(out_seg, t_seg, axis=[0,1,2,3])#, 'jaccard', epsilon=1e-5)
+    iou_loss = tl.cost.iou_coe(out_seg, t_seg, axis=[0,1,2,3])
+    dice_hard = tl.cost.dice_hard_coe(out_seg, t_seg, axis=[0,1,2,3])
+    loss = dice_loss
 
-        ###======================== DEFINE TRAIN OPTS =======================###
-        t_vars = tl.layers.get_variables_with_name('u_net', True, True)
-        with tf.device('/gpu:0'):
-            with tf.variable_scope('learning_rate'):
-                lr_v = tf.Variable(lr, trainable=False)
-            train_op = tf.train.AdamOptimizer(lr_v, beta1=beta1).minimize(loss, var_list=t_vars)
+    ## test losses
+    test_out_seg = net_test.outputs
+    test_dice_loss = 1 - tl.cost.dice_coe(test_out_seg, t_seg, axis=[0,1,2,3])#, 'jaccard', epsilon=1e-5)
+    test_iou_loss = tl.cost.iou_coe(test_out_seg, t_seg, axis=[0,1,2,3])
+    test_dice_hard = tl.cost.dice_hard_coe(test_out_seg, t_seg, axis=[0,1,2,3])
 
-        ###======================== LOAD MODEL ==============================###
-        tl.layers.initialize_global_variables(sess)
-        ## load existing model if possible
-        tl.files.load_and_assign_npz(sess=sess, name=save_dir+'/u_net_{}.npz'.format(task), network=net)
+    ###======================== DEFINE TRAIN OPTS =======================###
+    t_vars = tl.layers.get_variables_with_name('u_net', True, True)
+    with tf.variable_scope('learning_rate'):
+        lr_v = tf.Variable(lr, trainable=False)
+    train_op = tf.train.AdamOptimizer(lr_v, beta1=beta1).minimize(loss, var_list=t_vars)
 
-        ###======================== TRAINING ================================###
+    ###======================== LOAD MODEL ==============================###
+    tl.layers.initialize_global_variables(sess)
+    ## load existing model if possible
+    tl.files.load_and_assign_npz(sess=sess, name=save_dir+'/u_net_{}.npz'.format(task), network=net)
+
+    ###======================== TRAINING ================================###
     for epoch in range(0, n_epoch+1):
 
         epoch_time = time.time()
