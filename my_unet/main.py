@@ -10,6 +10,10 @@ import model
 import random
 import json
 import scipy.ndimage
+import time
+import pickle
+
+senior_path = '/DATA/data/yjgu/bladder/dwi_ax_preprocessed_2d_fixed_order'
 
 def lists2slices(tuple_list):
 	return [slice(*t) for t in tuple_list]
@@ -41,12 +45,12 @@ def process_one_channel(image, bladder_bbox, height, width):
 	new_image = resize(new_image, (height, width))
 	return new_image
 
-def read_cancer_bbox(filename, image_height, image_width):
+def read_cancer_bbox(filename, image_height, image_width, label):
 	with open(filename, 'r') as f:
 		cancer_bboxes = pickle.load(f)
 
 	bboxes_image = np.zeros((image_height, image_width))
-	if label == 2:
+	if label == '2':
 		grid_x, grid_y = np.mgrid[0:image_height, 0:image_width]
 		for box in cancer_bboxes:
 
@@ -67,15 +71,15 @@ def next_batch(dataset, batch_size, height, width, epoch):
 	images = []
 	labels = []
 
-	for i in batch_size:
+	for i in range(batch_size):
 
 		# dataset[0] = ['D1867766/dwi_ax_0/image_3.npy', 
 		#				'D1867766/dwi_ax_0/dilated_mask_3.npy',
 		# 				'D1867766/dwi_ax_0/dilated_mask_bbox.json', '0', 
 		#				'D1867766/dwi_ax_0/stack0_b0guess/box_label_3.txt']
 		ind = batch_size * epoch + i
-		image = np.load(dataset[ind][0])
-		bladder_bbox = read_bladder_bbox(dataset[ind][2])
+		image = np.load(os.path.join(senior_path, dataset[ind][0]))
+		bladder_bbox = read_bladder_bbox(os.path.join(senior_path, dataset[ind][2]))
 		label = dataset[ind][3]
 		cancer_bbox_path = os.path.join('/DATA/data/yjgu/bladder/bladder_labels', dataset[ind][4])
 
@@ -92,8 +96,8 @@ def next_batch(dataset, batch_size, height, width, epoch):
 		cancer_bbox = np.expand_dims(cancer_bbox, 2)
 		# cancer_bbox.shape = [height, width, 1]
 
-		images.append[processed_image]
-		labels.append[cancer_bbox]
+		images.append(processed_image)
+		labels.append(cancer_bbox)
 
 	images = np.asarray(images, dtype=np.float32)
 	labels = np.asarray(labels)
@@ -134,7 +138,7 @@ def main():
     		train.append(i)
     		train_size += 1
 
-    with open(test_path, 'r') as f:
+    with open(val_path, 'r') as f:
     	reader = csv.reader(f)
     	for i in reader:
 
@@ -180,7 +184,7 @@ def main():
     ###======================== LOAD MODEL ==============================###
     tl.layers.initialize_global_variables(sess)
     ## load existing model if possible
-    tl.files.load_and_assign_npz(sess=sess, name=save_dir+'/u_net_{}.npz'.format(task), network=net)
+    # tl.files.load_and_assign_npz(sess=sess, name=save_dir+'/u_net.npz', network=net)
 
     ###======================== TRAINING ================================###
     for epoch in range(0, n_epoch+1):
@@ -199,9 +203,9 @@ def main():
 
         total_dice, total_iou, total_dice_hard, n_batch = 0, 0, 0, 0
         shuffle(train)
-        shuffle(test)
+        shuffle(val)
 
-        for i in train_epoch:
+        for i in range(train_epoch):
 
             images, labels = next_batch(train, batch_size, height, width, i)
             step_time = time.time()
@@ -246,7 +250,7 @@ def main():
 
         ###======================== VALIDATION ==========================###
         total_dice, total_iou, total_dice_hard, n_batch = 0, 0, 0, 0
-        for i in val_epoch:
+        for i in range(val_epoch):
 
             val_images, val_labels = next_batch(val, batch_size, height, width, i)
             _dice, _iou, _diceh, out = sess.run([test_dice_loss,
@@ -257,7 +261,6 @@ def main():
 
         print(" **"+" "*17+"test 1-dice: %f hard-dice: %f iou: %f (2d no distortion)" %
                 (total_dice/n_batch, total_dice_hard/n_batch, total_iou/n_batch))
-        print(" task: {}".format(task))
 
         '''
         ## save a predition of test set
@@ -270,7 +273,7 @@ def main():
         '''
 
         ###======================== SAVE MODEL ==========================###
-        tl.files.save_npz(net.all_params, name=save_dir+'/u_net_{}.npz'.format(task), sess=sess)
+        tl.files.save_npz(net.all_params, name=save_dir+'/u_net.npz', sess=sess)
 
 if __name__ == "__main__":
 
