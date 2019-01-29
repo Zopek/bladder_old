@@ -255,7 +255,7 @@ def main():
             val_images, val_labels = next_batch(val, batch_size, height, width, i)
             _dice, _iou, _diceh, out = sess.run([test_dice_loss,
                     test_iou_loss, test_dice_hard, net_test.outputs],
-                    {t_image: val_images, t_seg: valb_labels})
+                    {t_image: val_images, t_seg: val_labels})
             total_dice += _dice; total_iou += _iou; total_dice_hard += _diceh
             n_batch += 1
 
