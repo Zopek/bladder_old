@@ -105,8 +105,8 @@ def main():
     beta1 = 0.9
     n_epoch = 100
     print_freq_step = 100
-    height = 300
-    width = 300
+    height = 320
+    width = 320
 
     ###======================== LOAD DATA ===================================###
     ## by importing this, you can load a training set and a validation set.
