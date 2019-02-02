@@ -22,7 +22,7 @@ def resize(image, height, width):
 	elif image.shape[0] < height:
 		new_image = np.zeros((height, width))
 		margin = (height - image.shape[0]) / 2
-		new_image[margin:(margin+height), margin:(margin+width)] = image
+		new_image[margin:(margin+image.shape[0]), margin:(margin+image.shape[1])] = image
 
 	return new_image
 
