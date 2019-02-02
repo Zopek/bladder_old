@@ -98,7 +98,7 @@ def main():
     tl.files.exists_or_mkdir("samples")
 
     ###======================== HYPER-PARAMETERS ============================###
-    batch_size = 10
+    batch_size = 5
     lr = 0.0001 
     # lr_decay = 0.5
     # decay_every = 100
