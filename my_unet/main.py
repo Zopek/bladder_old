@@ -50,16 +50,15 @@ def read_cancer_bbox(filename, image_height, image_width, label):
 		cancer_bboxes = pickle.load(f)
 
 	bboxes_image = np.zeros((image_height, image_width))
-	if label == '2':
-		grid_x, grid_y = np.mgrid[0:image_height, 0:image_width]
-		for box in cancer_bboxes:
+	grid_x, grid_y = np.mgrid[0:image_height, 0:image_width]
+	for box in cancer_bboxes:
 
-			x = box[0]
-			y = box[1]
-			r = box[2]
-			dist_from_center = np.sqrt((grid_x - x) ** 2 + (grid_y - y) ** 2)
-			mask = dist_from_center < r
-			boxes_image = np.logical_or(bboxes_image, mask)
+		x = box[0]
+		y = box[1]
+		r = box[2]
+		dist_from_center = np.sqrt((grid_x - x) ** 2 + (grid_y - y) ** 2)
+		mask = dist_from_center < r
+		bboxes_image = np.logical_or(bboxes_image, mask)
 
 	return bboxes_image.astype(np.int)
 
