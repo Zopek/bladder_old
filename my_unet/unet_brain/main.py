@@ -6,12 +6,14 @@ import tensorlayer as tl
 import numpy as np
 import os
 import csv
-import model
 import random
 import json
 import scipy.ndimage
 import time
 import pickle
+
+import model
+import augmentation
 
 senior_path = '/DATA/data/yjgu/bladder/dwi_ax_preprocessed_2d_fixed_order'
 
@@ -95,8 +97,10 @@ def next_batch(dataset, batch_size, height, width, epoch):
 		cancer_bbox = np.expand_dims(cancer_bbox, 2)
 		# cancer_bbox.shape = [height, width, 1]
 
-		images.append(processed_image)
-		labels.append(cancer_bbox)
+        aug_image, aug_label = random_transform(processed_image, cancer_bbox)
+
+		images.append(aug_image)
+		labels.append(aug_label)
 
 	images = np.asarray(images, dtype=np.float32)
 	labels = np.asarray(labels)
